@@ -1,3 +1,4 @@
+import os
 from datetime import date
 from functools import wraps
 
@@ -15,12 +16,12 @@ from wtforms.validators import Email, DataRequired
 from forms import CreatePostForm, CommentForm
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
 ##CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -171,7 +172,8 @@ def show_post(post_id):
         db.session.add(new_comment)
         db.session.commit()
         return redirect(url_for("show_post", post_id=post_id))
-    return render_template("post.html", post=requested_post, admin=check_if_admin(), comment_form=comment, user_active=current_user.is_authenticated, comments=comments_for_post)
+    return render_template("post.html", post=requested_post, admin=check_if_admin(), comment_form=comment,
+                           user_active=current_user.is_authenticated, comments=comments_for_post)
 
 
 @app.route("/about")
